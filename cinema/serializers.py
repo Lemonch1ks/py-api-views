@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.relations import PrimaryKeyRelatedField
 
 from cinema.models import Movie, Actor, CinemaHall, Genre
 
@@ -8,6 +9,8 @@ class MovieSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
     description = serializers.CharField()
     duration = serializers.IntegerField()
+    actors = PrimaryKeyRelatedField(many=True, queryset=Actor.objects.all())
+    genres = PrimaryKeyRelatedField(many=True, queryset=Genre.objects.all())
 
     def create(self, validated_data):
         return Movie.objects.create(**validated_data)
@@ -18,7 +21,8 @@ class MovieSerializer(serializers.Serializer):
             "description", instance.description
         )
         instance.duration = validated_data.get("duration", instance.duration)
-
+        instance.actors = validated_data.get("actors", instance.actors)
+        instance.genres = validated_data.get("genres", instance.genres)
         instance.save()
 
         return instance
